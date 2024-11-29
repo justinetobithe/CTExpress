@@ -18,7 +18,7 @@ export default function Booking({ route, navigation }) {
 
     const { addBooking, isLoading } = useBookingStore();
     const [selectedTripId, setSelectedTripId] = useState(null);
-    const [paymentMethod, setPaymentMethod] = useState('cash');
+    const [paymentMethod, setPaymentMethod] = useState('');
 
     const { control, handleSubmit, formState: { errors }, reset } = useForm({
         defaultValues: {
@@ -97,7 +97,19 @@ export default function Booking({ route, navigation }) {
             total_amount: totalPayment,
         };
 
-        await addBooking(formData, showToast, navigation);
+
+        if (paymentMethod === 'cash') {
+            await addBooking(formData, showToast, navigation);
+        } else {
+            const paymentScreen = paymentMethod === 'paymaya' ? 'PaymayaScreen' : 'GCashScreen';
+            navigation.navigate(paymentScreen, {
+                paymentMethod,
+                formData,
+                totalPayment,
+                fromTerminalName,
+                toTerminalName,
+            });
+        }
     };
 
     const calculateTotalPayment = (fareAmount) => {
@@ -181,35 +193,42 @@ export default function Booking({ route, navigation }) {
                                 <Heading fontSize="lg" mt="2" pb="4">Select Payment Method</Heading>
 
                                 <TouchableOpacity
-                                    style={[styles.paymentButton, styles.cashButton, paymentMethod === 'cash' ? styles.activeButton : null]}
+                                    style={[
+                                        styles.paymentButton,
+                                        paymentMethod === 'cash' ? styles.activeButton : null,
+                                    ]}
                                     onPress={() => handlePaymentMethod('cash')}
                                 >
                                     <Text style={styles.paymentText}>Cash</Text>
                                 </TouchableOpacity>
 
-                                {/*
                                 <View style={styles.divider}>
                                     <View style={styles.line} />
                                     <Text style={styles.orText}>or</Text>
                                     <View style={styles.line} />
                                 </View>
+
                                 <TouchableOpacity
-                                    style={[styles.paymentButton, paymentMethod === 'gcash' ? styles.activeButton : null]}
+                                    style={[
+                                        styles.paymentButton,
+                                        paymentMethod === 'gcash' ? styles.activeButton : null,
+                                    ]}
                                     onPress={() => handlePaymentMethod('gcash')}
-                                    disabled={true}
                                 >
                                     <Image source={require('../../assets/img/gcash.png')} style={styles.paymentImage} />
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
-                                    style={[styles.paymentButton, paymentMethod === 'paymaya' ? styles.activeButton : null]}
+                                    style={[
+                                        styles.paymentButton,
+                                        paymentMethod === 'paymaya' ? styles.activeButton : null,
+                                    ]}
                                     onPress={() => handlePaymentMethod('paymaya')}
-                                    disabled={true}
                                 >
                                     <Image source={require('../../assets/img/paymaya.png')} style={styles.paymentImage} />
-                                </TouchableOpacity> */}
-                            </VStack>
+                                </TouchableOpacity>
 
+                            </VStack>
 
                             <Button
                                 isLoading={isLoading}
@@ -257,7 +276,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     activeButton: {
-        borderColor: '#080E2C',
+        borderColor: 'blue',
     },
     paymentImage: {
         width: 200,

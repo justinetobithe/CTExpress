@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../api'; 
+import api from '../api';
 import dateFormat from "dateformat";
 
 const useAuthStore = create((set) => ({
@@ -41,11 +41,11 @@ const useAuthStore = create((set) => ({
                 return { success: true, message: res.data.message || 'Registration successful!' };
             } else {
                 set({ isLoading: false });
-                console.log("API response error:", res.data.message);
+                // console.log("API response error:", res.data.message);
                 return { success: false, message: res.data.message || 'Registration failed' };
             }
         } catch (e) {
-            console.log(`Register error: ${e.response?.data || e.message}`);
+            // console.log(`Register error: ${e.response?.data || e.message}`);
             set({ isLoading: false });
             return { success: false, message: 'An error occurred during registration.' };
         }
@@ -55,7 +55,7 @@ const useAuthStore = create((set) => ({
     login: async (email, password, showToast) => {
         set({ isLoading: true });
         try {
-            const res = await api.post('/api/login', { email, password });
+            const res = await api.post('/api/mobile-login', { email, password });
 
             if (res.data.status === true) {
                 const userInfo = {

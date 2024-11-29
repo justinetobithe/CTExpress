@@ -87,3 +87,8 @@ export const generateTimeList = () => {
 export const capitalizeWords = (str) => {
     return str.replace(/\b\w/g, char => char.toUpperCase());
 };
+
+export const generateUniqueString = () => { 
+    return Math.floor(1000 + Math.random() * 9000).toString();
+};
+

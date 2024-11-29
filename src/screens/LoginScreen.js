@@ -5,6 +5,8 @@ import { useForm, Controller } from 'react-hook-form';
 import NetInfo from '@react-native-community/netinfo';
 import useAuthStore from '../store/authStore';
 import Toast from '../components/Toast';
+import { sendLocalNotification } from '../core/NotificationService';
+import PushNotification from 'react-native-push-notification';
 
 export default function LoginScreen({ navigation }) {
     const { control, handleSubmit, formState: { errors }, reset } = useForm({
@@ -24,6 +26,24 @@ export default function LoginScreen({ navigation }) {
 
             login(data.email, data.password, showToast);
         }
+    };
+
+    const greetUser = () => {
+        sendLocalNotification("This is a test notification!")
+
+        // PushNotification.createChannel(
+        //     {
+        //         channelId: '3',
+        //         channelName: 'name',
+        //     },
+        //     created => console.log(`createChannel returned '${created}'`),
+        // );
+
+        // PushNotification.localNotification({
+        //     title: 'NEW Message - ANDROID',
+        //     message: "test",
+        //     channelId: '3',
+        // });
     };
 
     return (
@@ -120,6 +140,15 @@ export default function LoginScreen({ navigation }) {
                     <Link onPress={() => navigation.navigate('Register')} style={styles.registerLink}>
                         Create an account
                     </Link>
+
+                    {/* <Button
+                        onPress={greetUser}  // Calls the function to send the notification
+                        variant="solid"
+                        backgroundColor="#34b7f1"
+                        style={styles.buttonGreeting}
+                    >
+                        Send Greeting Notification
+                    </Button> */}
                 </Stack>
             </Box>
         </ScrollView>

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, RefreshControl, LogBox } from 'react-native';
 import useTripStore from '../../store/tripStore';
 import useAuthStore from '../../store/authStore';
 import { formatDateLocale, formatTime, getCurrentDateInTimeZone } from '../../helper/helperFunciton';
 import { useNavigation } from '@react-navigation/native';
 import Toast from '../../components/Toast';
+import { laravelEcho } from '../../core/LaravelPush';
 
 const Driver = () => {
     const { showToast } = Toast();
@@ -12,6 +13,50 @@ const Driver = () => {
     const [refreshing, setRefreshing] = useState(false);
     const { userInfo } = useAuthStore();
     const { trips, fetchDriverTrips, updateDriverDecision } = useTripStore();
+    const eventSubscribed = useRef(false);
+    const toastCooldown = useRef(false);
+    const debounceToast = (message, type) => {
+        if (!toastCooldown.current) {
+            showToast(message, type);
+            toastCooldown.current = true;
+            setTimeout(() => {
+                toastCooldown.current = false;
+            }, 3000);
+        }
+    };
+
+    useEffect(() => {
+        LogBox.ignoreLogs([
+            "ReferenceError: Property 'getCurrentBookingUser' doesn't exist"
+        ]);
+
+        return () => {
+            LogBox.ignoreLogs([]);
+        };
+    }, []);
+
+
+    useEffect(() => {
+        if (!eventSubscribed.current) {
+            laravelEcho('App.Events')
+                .private('trip.assigned')
+                .listen('TripAssignEvent', (response) => {
+                    console.log('RESPONSE: ', response);
+                    const { data } = response;
+                    if (data.user_id === userInfo.id) {
+                        if (userInfo.role === 'driver') {
+                            getTrips();
+                            debounceToast('You have a new trip assigned!', 'success');
+                        }
+                    }
+                });
+            eventSubscribed.current = true;
+        }
+
+        return () => {
+            laravelEcho('App.Events').leaveChannel('trip.assigned');
+        };
+    }, [userInfo.id]);
 
     const getTrips = async () => {
         setRefreshing(true);
@@ -72,14 +117,13 @@ const Driver = () => {
         }
     };
 
-
     const renderTripItem = ({ item }) => (
         <TouchableOpacity
             style={styles.tripItem}
             onPress={() => item.is_driver_accepted === 1 && handleTripPress(item)}
             disabled={item.is_driver_accepted === 0}
         >
-            <Text style={styles.tripTitle}>{`Booking Date: ${formatDateLocale(item.trip_date)}`}</Text>
+            <Text style={styles.tripTitle}>{`Trip Date: ${formatDateLocale(item.trip_date)}`}</Text>
             <Text style={styles.tripText}>{`From Terminal: ${item.terminal_from?.name}`}</Text>
             <Text style={styles.tripText}>{`To Terminal: ${item.terminal_to?.name}`}</Text>
             <Text style={styles.tripText}>{`Start Time: ${formatTime(item.start_time)}`}</Text>

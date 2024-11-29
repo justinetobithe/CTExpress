@@ -5,7 +5,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import usePassengerStore from '../../store/passengerStore';
 import Toast from '../../components/Toast';
-import { capitalizeWords } from '../../helper/helperFunciton';
+import { capitalizeWords, formatDateLocale } from '../../helper/helperFunciton';
 
 const TripDetails = ({ navigation, route }) => {
     const { showToast } = Toast();
@@ -131,6 +131,7 @@ const TripDetails = ({ navigation, route }) => {
                     <Text style={styles.title}>Trip Details</Text>
                     {currentTrip ? (
                         <>
+                            <Text style={styles.tripTitle}>{`Trip Date: ${formatDateLocale(currentTrip.trip_date)}`}</Text>
                             <Text style={styles.tripTitle}>Vehicle: {currentTrip.vehicle?.brand} {currentTrip.vehicle?.model}</Text>
                             <Text style={styles.tripTitle}>From: {currentTrip.terminal_from?.name}</Text>
                             <Text style={styles.tripTitle}>To: {currentTrip.terminal_to?.name}</Text>

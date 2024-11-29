@@ -48,7 +48,7 @@ export default function AuthStack() {
                 name="TripDetails"
                 component={TripDetails}
                 options={{
-                    title: "Route Details",
+                    title: "Trip Details",
                     drawerIcon: ({ color }) => (
                         <Ionicons name="book-outline" size={22} color={color} />
                     ),

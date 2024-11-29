@@ -9,7 +9,7 @@ import useAuthStore from '../store/authStore';
 import useBookingStore from '../store/bookingStore';
 import { getCurrentLocation } from '../helper/helperFunciton';
 import StepIndicator from 'react-native-step-indicator';
-
+import { laravelEcho } from '../core/LaravelPush';
 
 const customStyles = {
     stepIndicatorSize: 25,
@@ -49,10 +49,34 @@ const BottomSheet = ({ visible, toggleVisibility, setPolylineCoordinates, setCur
     const [previousFromTerminal, setPreviousFromTerminal] = useState(null);
     const [previousToTerminal, setPreviousToTerminal] = useState(null);
     const [previousBookingId, setPreviousBookingId] = useState(null);
+    const eventSubscribed = useRef(false);
+    const toastCooldown = useRef(false);
+    const debounceToast = (message, type) => {
+        if (!toastCooldown.current) {
+            showToast(message, type);
+            toastCooldown.current = true;
+            setTimeout(() => {
+                toastCooldown.current = false;
+            }, 3000);
+        }
+    };
 
     const stepCount = 2;
     const [currentStep, setCurrentStep] = useState(0);
 
+    useEffect(() => {
+        laravelEcho('App.Events')
+            .private('trip.status.updated')
+            .listen('TripStatusUpdatedEvent', (response) => {
+                console.log("RESPONSE: ", response)
+                const { data } = response
+                if (data.user_id == userInfo.id) {
+                    if (userInfo.role === 'passenger') { 
+                        getCurrentBookingUser();
+                    }
+                }
+            })
+    }, []);
 
 
     const getCurrentBookingUser = async () => {

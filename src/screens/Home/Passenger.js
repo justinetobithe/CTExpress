@@ -11,7 +11,7 @@ import vehicleImage from '../../../src/assets/img/vehicle.png';
 // const MAPBOX_TOKEN = 'sk.eyJ1IjoianVzdGluZXRvYml0aGUiLCJhIjoiY20zeXQ4NGhmMXBpdzJsc2NmdzM5b2h3ayJ9.Qwk8VK_o0gLtVrXcpOl9aw';
 
 Mapbox.setAccessToken('sk.eyJ1IjoianVzdGluZXRvYml0aGUiLCJhIjoiY20zeXQ4NGhmMXBpdzJsc2NmdzM5b2h3ayJ9.Qwk8VK_o0gLtVrXcpOl9aw');
- 
+
 const Passenger = () => {
     const [polylineCoordinates, setPolylineCoordinates] = useState([]);
     const [currentBooking, setCurrentBooking] = useState()
@@ -143,7 +143,6 @@ const Passenger = () => {
                     animationMode="move"
                     animationDuration={1000}
                 />
-
 
                 {polylineCoordinates.length > 0 && (
                     <Mapbox.ShapeSource

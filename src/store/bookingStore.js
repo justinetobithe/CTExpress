@@ -6,6 +6,7 @@ const useBookingStore = create((set) => ({
     isLoading: false,
     error: null,
     currentBooking: null,
+    setCurrentBooking: () => { set({ currentBooking: null }); },
 
     fetchBookings: async () => {
         set({ isLoading: true, error: null });
@@ -21,7 +22,7 @@ const useBookingStore = create((set) => ({
         }
     },
 
-    addBooking: async (formData, showToast, navigation) => {
+    addBooking: async (formData, showToast = null, navigation = null) => {
         set({ isLoading: true, error: null });
 
         console.log("form Data", formData);
@@ -32,15 +33,23 @@ const useBookingStore = create((set) => ({
                 set((state) => ({
                     bookings: [...state.bookings, res.data.data],
                 }));
-                showToast(res.data.message, "success");
-                navigation.goBack();
+                if (showToast) {
+                    showToast(res.data.message, "success");
+                }
+                if (navigation) {
+                    navigation.goBack();
+                }
             } else {
                 console.log("Backend error:", res.data.message);
-                showToast(res.data.message, "error");
+                if (showToast) {
+                    showToast(res.data.message, "error");
+                }
             }
         } catch (e) {
             console.error(`addBooking error: ${e}`);
-            showToast(`Failed to add booking: ${e.message}`, "error");
+            if (showToast) {
+                showToast(`Failed to add booking: ${e.message}`, "error");
+            }
             set({ error: e.message });
         } finally {
             set({ isLoading: false });
@@ -103,7 +112,7 @@ const useBookingStore = create((set) => ({
         set({ isLoading: true, error: null });
         try {
             const res = await api.get(`/api/booking/current/${userId}`);
-            console.log(`fetchCurrentBookingForUser response for User ID ${userId}:`, res.data.data);
+            // console.log(`fetchCurrentBookingForUser response for User ID ${userId}:`, res.data.data);
             if (res.data.status) {
                 set({ currentBooking: res.data.data });
             } else {
@@ -111,7 +120,7 @@ const useBookingStore = create((set) => ({
                 // console.error("No current booking found for the user.");
             }
         } catch (e) {
-            console.error(`fetchCurrentBookingForUser error: ${e}`);
+            // console.error(`fetchCurrentBookingForUser error: ${e}`);
             set({ error: e.message });
         } finally {
             set({ isLoading: false });
@@ -123,24 +132,24 @@ const useBookingStore = create((set) => ({
 
         console.log("formData", formData);
         try {
-            const res = await api.put(`/api/booking/drop-off/${id}`, { formData });
+            const res = await api.put(`/api/booking/drop-off/${id}`, formData);
 
-            console.log("response", res.data)
+            // console.log("response", res.data)
 
-            // if (res.data.status) {
-            //     set((state) => ({
-            //         bookings: state.bookings.map((booking) =>
-            //             booking.id === id ? { ...booking, ...res.data.booking } : booking
-            //         ),
-            //     }));
-            //     showToast(res.data.message, "success");
-            // } else {
-            //     console.log("Backend error:", res.data.message);
-            //     showToast(res.data.message, "error");
-            // }
+            if (res.data.status) {
+                set((state) => ({
+                    bookings: state.bookings.map((booking) =>
+                        booking.id === id ? { ...booking, ...res.data.booking } : booking
+                    ),
+                }));
+                showToast(res.data.message, "success");
+            } else {
+                console.log("Backend error:", res.data.message);
+                // showToast(res.data.message, "error");
+            }
         } catch (e) {
             console.error(`dropOffPassenger error: ${e}`);
-            showToast(`Failed to drop off passenger: ${e.message}`, "error");
+            // showToast(`Failed to drop off passenger: ${e.message}`, "error");
             set({ error: e.message });
         } finally {
             set({ isLoading: false });
