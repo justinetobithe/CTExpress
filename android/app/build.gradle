@@ -273,6 +273,9 @@ dependencies {
     implementation project(':react-native-vector-icons') 
     implementation project(':@react-native-community_datetimepicker')
 
+    // implementation("androidx.activity:activity:1.9.+")
+    
+
     implementation 'com.mapbox.maps:android:10.18.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-sdk-turf:6.11.0'
 
